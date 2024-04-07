@@ -1,0 +1,10 @@
+<main class="flex flex-col">
+  <h1>Hello, {{ title }}</h1>
+  <p>Congratulations! Your app is running. 🎉</p>
+
+  @for (hero of heroes; track hero.name) {
+    <p>{{ hero.name }}</p>
+  }
+</main>
+
+<router-outlet />
