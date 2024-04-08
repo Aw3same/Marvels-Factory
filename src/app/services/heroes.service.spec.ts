@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing'
+import { TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing'
 import {
   HttpClientTestingModule,
   HttpTestingController,
@@ -6,10 +6,35 @@ import {
 
 import { HeroesService } from './heroes.service'
 import { Hero } from '../types/hero'
+import { catchError, of } from 'rxjs'
+
+const localStorageMock = (() => {
+  let store: { [key: string]: string } = {}
+
+  return {
+    getItem(key: string): string | null {
+      return store[key] || null
+    },
+    setItem(key: string, value: string): void {
+      store[key] = value
+    },
+    removeItem(key: string): void {
+      delete store[key]
+    },
+    clear(): void {
+      store = {}
+    },
+  }
+})()
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+})
 
 describe('HeroesService', () => {
   let service: HeroesService
   let httpTestingController: HttpTestingController
+  let mockHeroes: Hero[]
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -19,136 +44,254 @@ describe('HeroesService', () => {
 
     service = TestBed.inject(HeroesService)
     httpTestingController = TestBed.inject(HttpTestingController)
+
+    mockHeroes = [
+      {
+        nameLabel: 'Iron Man',
+        genderLabel: 'Male',
+        citizenshipLabel: 'American',
+        skillsLabel: 'Tech Genius, Engineer',
+        occupationLabel: 'Billionaire Industrialist',
+        memberOfLabel: 'Avengers',
+        creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+      },
+      {
+        nameLabel: 'Captain America',
+        genderLabel: 'Male',
+        citizenshipLabel: 'American',
+        skillsLabel: 'Peak Human Strength, Agility, Durability',
+        occupationLabel: 'Soldier',
+        memberOfLabel: 'Avengers',
+        creatorLabel: 'Joe Simon, Jack Kirby',
+      },
+    ]
   })
 
   afterEach(() => {
-    // Verify no outstanding requests
-    httpTestingController.verify()
-  })
-
-  it('should be created', () => {
-    expect(service).toBeTruthy()
+    httpTestingController.verify() // Verify that no requests are outstanding
+    localStorage.clear() // Clear local storage after each test
   })
 
   describe('#getHeroes', () => {
-    let mockHeroes: Hero[]
+    it('#getHeroes should load heroes from the server and store them in localStorage', fakeAsync(() => {
+      service.getHeroes().subscribe(heroes => {
+        expect(heroes).toEqual(mockHeroes)
+      })
+      tick()
 
-    beforeEach(() => {
-      mockHeroes = [
-        {
-          name: 'Iron Man',
-          weight: '225 lbs',
-          height: '6\'1"',
-          age: 45,
-          birth: 'May 4, 1970',
-          powers: ['technological genius', 'advanced armor', 'flight'],
-          description:
-            'Tony Stark, a genius, billionaire, playboy, and philanthropist, becomes Iron Man to fight evil and protect the world.',
-        },
-        {
-          name: 'Spider-Man',
-          weight: '167 lbs',
-          height: '5\'10"',
-          age: 20,
-          birth: 'August 10, 2004',
-          powers: ['spider-sense', 'superhuman strength', 'agility'],
-          description:
-            'Peter Parker, a high school student, gains spider-like abilities after being bitten by a radioactive spider and fights crime as Spider-Man.',
-        },
-        {
-          name: 'Captain America',
-          weight: '220 lbs',
-          height: '6\'2"',
-          age: 100,
-          birth: 'July 4, 1920',
-          powers: ['superhuman strength', 'agility', 'indestructible shield'],
-          description:
-            'Steve Rogers, a super-soldier enhanced with the super-soldier serum, leads the Avengers as Captain America.',
-        },
-      ]
-    })
+      const req = httpTestingController.expectOne(service.heroesUrl)
+      expect(req.request.method).toEqual('GET')
+      req.flush(mockHeroes)
 
-    it('#getHeroes should return expected heroes (called once)', () => {
+      expect(localStorage.getItem('storedHeroes')).toEqual(
+        JSON.stringify(mockHeroes)
+      )
+    }))
+
+    it('#getHeroes should return heroes from localStorage if available', fakeAsync(() => {
+      localStorage.setItem('storedHeroes', JSON.stringify(mockHeroes))
+
       service.getHeroes().subscribe(heroes => {
         expect(heroes).toEqual(mockHeroes)
       })
 
-      const req = httpTestingController.expectOne('./assets/heroes.json') // Assuming heroesUrl is set
-      expect(req.request.method).toEqual('GET')
+      tick()
+    }))
 
-      req.flush(mockHeroes) // Respond with mock data
-    })
+    it('#getHeroes should return empty array if there is no data available', fakeAsync(() => {
+      const expectedError = new ErrorEvent('Network error', {
+        message: 'Error message',
+      })
+      localStorage.removeItem('storedHeroes')
 
-    it('#getHeroes should be OK returning no heroes', () => {
-      service.getHeroes().subscribe(heroes => {
-        expect(heroes.length).toEqual(0)
+      const heroes$ = service.getHeroes().pipe(
+        catchError(err => {
+          // Assert
+          expect(err).toEqual(expectedError)
+          return of([])
+        })
+      )
+      // Assert
+      heroes$.subscribe(heroes => {
+        expect(heroes).toEqual([])
       })
 
-      const req = httpTestingController.expectOne('./assets/heroes.json')
-      expect(req.request.method).toEqual('GET')
+      const req = httpTestingController.expectOne(service.heroesUrl)
+      req.flush(mockHeroes, { status: 500, statusText: 'Fake error' })
 
-      req.flush([]) // Respond with empty array
-    })
-
-    it('#getHeroes should handle error (404)', () => {
-      const errorMsg = 'Mock Http failure'
-
-      service.getHeroes().subscribe({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        next: _heroes => fail('expected an error, not heroes'),
-        error: error => expect(error.message).toEqual(errorMsg),
-      })
-
-      const req = httpTestingController.expectOne('./assets/heroes.json')
-      expect(req.request.method).toEqual('GET')
-
-      req.flush([], { status: 404, statusText: errorMsg })
-    })
+      tick()
+    }))
   })
 
   describe('#addHero', () => {
-    let mockHero: Hero
+    it('#addHero should add a hero to localStorage and return the added hero', fakeAsync(() => {
+      // Arrange
+      const initialHeroes: Hero[] = [
+        {
+          nameLabel: 'Iron Man',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Tech Genius, Engineer',
+          occupationLabel: 'Billionaire Industrialist',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+        },
+        {
+          nameLabel: 'Captain America',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Peak Human Strength, Agility, Durability',
+          occupationLabel: 'Soldier',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Joe Simon, Jack Kirby',
+        },
+      ]
 
-    beforeEach(() => {
-      mockHero = {
-        id: 10,
-        name: 'Super Angel',
-        weight: '150 lbs',
-        height: '5\'5"',
-        age: 32,
-        birth: 'January 1, 1991',
-        powers: ['flight', 'healing', 'teleportation'],
-        description:
-          'A superhero with the power of flight, healing, and teleportation.',
+      localStorage.setItem('storedHeroes', JSON.stringify(initialHeroes))
+
+      const newHero: Hero = {
+        nameLabel: 'Thor',
+        genderLabel: 'Male',
+        citizenshipLabel: 'Asgardian',
+        skillsLabel: 'God of Thunder, Master Combatant',
+        occupationLabel: 'God',
+        memberOfLabel: 'Avengers',
+        creatorLabel: 'Stan Lee, Jack Kirby',
       }
-    })
 
-    it('should add a new hero', () => {
-      service.addHero(mockHero).subscribe(hero => {
-        expect(hero).toEqual(mockHero)
+      // Act
+      service.addHero(newHero).subscribe(hero => {
+        expect(hero).toEqual(newHero)
       })
+      tick()
 
-      const req = httpTestingController.expectOne(service.heroesUrl)
-      expect(req.request.method).toEqual('POST')
-      expect(req.request.body).toEqual(mockHero)
+      const updatedHeroes = JSON.parse(
+        localStorage.getItem('storedHeroes')!
+      ) as Hero[]
+      expect(updatedHeroes).toContainEqual(newHero)
+    }))
+  })
 
-      req.flush(mockHero) // Respond with the added hero
-    })
+  describe('#getHeroByName', () => {
+    it('#getHeroByName should get a hero by name from localStorage', () => {
+      // Arrange
+      const heroes: Hero[] = [
+        {
+          nameLabel: 'Iron Man',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Tech Genius, Engineer',
+          occupationLabel: 'Billionaire Industrialist',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+        },
+        {
+          nameLabel: 'Captain America',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Peak Human Strength, Agility, Durability',
+          occupationLabel: 'Soldier',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Joe Simon, Jack Kirby',
+        },
+      ]
 
-    it('should handle error (400)', () => {
-      const errorMsg = 'Mock Http failure'
+      localStorage.setItem('storedHeroes', JSON.stringify(heroes))
 
-      service.addHero(mockHero).subscribe({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        next: _hero => fail('expected an error, not hero'),
-        error: error => expect(error.message).toEqual(errorMsg),
+      const heroName = 'Iron Man'
+
+      // Act
+      const hero$ = service.getHeroByName(heroName)
+
+      // Assert
+      hero$.subscribe(hero => {
+        expect(hero?.nameLabel).toEqual(heroName)
       })
-
-      const req = httpTestingController.expectOne(service.heroesUrl)
-      expect(req.request.method).toEqual('POST')
-      expect(req.request.body).toEqual(mockHero)
-
-      req.flush({}, { status: 400, statusText: errorMsg })
     })
+  })
+
+  describe('#deleteHeroByName', () => {
+    it('#deleteHeroByName should delete a hero by name from localStorage', () => {
+      // Arrange
+      const heroes: Hero[] = [
+        {
+          nameLabel: 'Iron Man',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Tech Genius, Engineer',
+          occupationLabel: 'Billionaire Industrialist',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+        },
+        {
+          nameLabel: 'Captain America',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Peak Human Strength, Agility, Durability',
+          occupationLabel: 'Soldier',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Joe Simon, Jack Kirby',
+        },
+      ]
+
+      localStorage.setItem('storedHeroes', JSON.stringify(heroes))
+
+      const heroNameToDelete = 'Iron Man'
+
+      // Act
+      const deleteResult$ = service.deleteHeroByName(heroNameToDelete)
+
+      // Assert
+      deleteResult$.subscribe(result => {
+        expect(result).toBe(true)
+
+        const remainingHeroes = JSON.parse(
+          localStorage.getItem('storedHeroes')!
+        ) as Hero[]
+        const deletedHero = remainingHeroes.find(
+          h => h.nameLabel === heroNameToDelete
+        )
+        expect(deletedHero).toBeUndefined()
+      })
+    })
+
+    it('should return false if there is an error deleting a hero', fakeAsync(() => {
+
+      const expectedError = new ErrorEvent('Hero not found', {
+        message: 'Hero not found',
+      })
+      // Arrange
+      const heroes: Hero[] = [
+        {
+          nameLabel: 'Iron Man',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Tech Genius, Engineer',
+          occupationLabel: 'Billionaire Industrialist',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+        },
+        {
+          nameLabel: 'Captain America',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Peak Human Strength, Agility, Durability',
+          occupationLabel: 'Soldier',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Joe Simon, Jack Kirby',
+        },
+      ]
+
+      localStorage.setItem('storedHeroes', JSON.stringify(heroes))
+
+      let reqResult: boolean | undefined
+
+      service.deleteHeroByName('Hero that does not exist').subscribe(result => {
+        reqResult = result
+      })
+      
+      tick()
+      expect(reqResult).toBe(false)
+    }))
   })
 })

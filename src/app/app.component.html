@@ -1,10 +1,13 @@
-<main class="flex flex-col">
-  <h1>Hello, {{ title }}</h1>
-  <p>Congratulations! Your app is running. 🎉</p>
+<div class="app">
+  <header>
+    <h1>The Marvel's Factory</h1>
+  </header>
+  <main>
+    <heroes-table [heroes]="heroes"/>
+    <router-outlet />
+  </main>
 
-  @for (hero of heroes; track hero.name) {
-    <p>{{ hero.name }}</p>
-  }
-</main>
-
-<router-outlet />
+  <footer>
+    <p>©{{ year }} Made with ❤️ by Ángel</p>
+  </footer>
+</div>
