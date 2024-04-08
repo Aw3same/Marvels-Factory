@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router'
 import { HeroesService } from './services/heroes.service'
 import { HttpClientModule } from '@angular/common/http'
 import { Hero } from './types/hero'
-import { HeroesTableComponent } from './heroes-table/heroes-table.component'
+import { HeroesTableComponent } from './components/heroes-table/heroes-table.component'
 
 @Component({
   selector: 'app-root',
