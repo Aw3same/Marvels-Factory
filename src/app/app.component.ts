@@ -14,7 +14,7 @@ import { HeroesTableComponent } from './components/heroes-table/heroes-table.com
   providers: [HeroesService],
 })
 export class AppComponent implements OnInit {
-  title = 'The Marvel´s Factory'
+  title = 'The Marvels Factory'
   year = new Date().getFullYear()
   heroesService = inject(HeroesService)
 
