@@ -1,9 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  ViewChild,
-} from '@angular/core'
+import { AfterViewInit, Component, Input, ViewChild } from '@angular/core'
 import { MatSort, MatSortModule } from '@angular/material/sort'
 import { MatTableDataSource, MatTableModule } from '@angular/material/table'
 import { Hero } from '../../types/hero'
@@ -11,7 +6,6 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
 import { MatInputModule } from '@angular/material/input'
 import { HeroesChipFilterComponent } from '@/components/heroes-chip-filter/heroes-chip-filter.component'
-
 
 @Component({
   selector: 'heroes-table',
@@ -22,7 +16,7 @@ import { HeroesChipFilterComponent } from '@/components/heroes-chip-filter/heroe
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    HeroesChipFilterComponent
+    HeroesChipFilterComponent,
   ],
   template: `
     <mat-form-field>
@@ -33,7 +27,7 @@ import { HeroesChipFilterComponent } from '@/components/heroes-chip-filter/heroe
         placeholder="Ex. Thor"
         #input />
     </mat-form-field>
-   <heroes-chip-filter />
+    <heroes-chip-filter />
     <div class="mat-elevation-z8">
       <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="nameLabel">
