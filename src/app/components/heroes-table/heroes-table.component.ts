@@ -24,11 +24,7 @@ import { HeroesChipFilterComponent } from '../heroes-chip-filter/heroes-chip-fil
 export class HeroesTableComponent implements AfterViewInit {
   @Input() set heroes(heroes: Hero[]) {
     this.dataSource.data = heroes
-    this.heroeNames = heroes.map(hero => hero.nameLabel)
   }
-
-  heroeNames: string[] = []
-
 
   @ViewChild(MatSort) sort!: MatSort
   @ViewChild(MatPaginator) paginator!: MatPaginator
@@ -47,19 +43,17 @@ export class HeroesTableComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator
     this.dataSource.sort = this.sort
-  }
-
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-    this.dataSource.filter = filterValue.trim().toLowerCase()
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage()
-    }
+    this.dataSource.filterPredicate = this.filterHeroesByNames
   }
 
   filterHeroes(heroes: string[]) {
-    console.log('Heroes to filter', heroes)
-    console.log('Does the hero exists?', this.dataSource.data.filter(hero => heroes.includes(hero.nameLabel)))
+    this.dataSource.filter = heroes.join(' ')    
+  }
+
+  private filterHeroesByNames(row: Hero, filter: string): boolean {
+    const columnName = row.nameLabel.toLowerCase()
+
+    const searchTerms = filter.toLowerCase().split(' ')
+    return searchTerms.some(term => columnName.includes(term))
   }
 }

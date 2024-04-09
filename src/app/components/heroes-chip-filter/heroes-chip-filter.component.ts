@@ -1,16 +1,12 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import {
   Component,
-  ElementRef,
   EventEmitter,
-  Input,
   Output,
-  ViewChild,
   inject,
 } from '@angular/core'
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import {
-  MatAutocompleteSelectedEvent,
   MatAutocompleteModule,
 } from '@angular/material/autocomplete'
 import {
@@ -18,16 +14,12 @@ import {
   MatChipInputEvent,
   MatChipsModule,
 } from '@angular/material/chips'
-import { Observable } from 'rxjs'
-import { map, startWith } from 'rxjs/operators'
 import { MatIconModule } from '@angular/material/icon'
 import { AsyncPipe } from '@angular/common'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { LiveAnnouncer } from '@angular/cdk/a11y'
 
-export interface Fruit {
-  name: string
-}
+
 @Component({
   selector: 'heroes-chip-filter',
   standalone: true,
@@ -43,7 +35,7 @@ export interface Fruit {
   template: `
     <mat-form-field class="chip-filter-list">
       <mat-label>Search your heroe</mat-label>
-      <mat-chip-grid #chipGrid aria-label="Enter fruits">
+      <mat-chip-grid #chipGrid aria-label="Enter heros">
         @for (hero of heros; track hero) {
           <mat-chip-row
             (removed)="remove(hero)"
@@ -68,7 +60,6 @@ export interface Fruit {
   styleUrl: './heroes-chip-filter.component.css',
 })
 export class HeroesChipFilterComponent {
-  @Input() allHeroes: string[] = []
   @Output() heroesSelected = new EventEmitter<string[]>()
   separatorKeysCodes: number[] = [ENTER, COMMA]
   heros: string[] = []
@@ -99,21 +90,27 @@ export class HeroesChipFilterComponent {
 
       this.announcer.announce(`Removed ${hero}`)
     }
+
+    this.heroesSelected.emit(this.heros)
+
   }
 
   edit(hero: string, event: MatChipEditedEvent) {
     const value = event.value.trim()
 
-    // Remove fruit if it no longer has a name
+    // Remove hero if it no longer has a name
     if (!value) {
       this.remove(hero)
       return
     }
 
-    // Edit existing fruit
+    // Edit existing hero
     const index = this.heros.indexOf(hero)
     if (index >= 0) {
       this.heros[index] = value
     }
+
+    this.heroesSelected.emit(this.heros)
+
   }
 }

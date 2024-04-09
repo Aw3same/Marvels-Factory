@@ -1,4 +1,4 @@
-  <heroes-chip-filter [allHeroes]="heroeNames" (heroesSelected)="filterHeroes($event)"/>
+  <heroes-chip-filter (heroesSelected)="filterHeroes($event)"/>
   <div class="mat-elevation-z8">
     <table mat-table [dataSource]="dataSource" matSort>
       <ng-container matColumnDef="nameLabel">
