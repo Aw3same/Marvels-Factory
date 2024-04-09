@@ -1,1 +1,32 @@
-<p>mmodal-hero-info works!</p>
+<h2 mat-dialog-title align="center">{{ data.nameLabel }}</h2>
+<mat-dialog-content class="mat-typography">
+  <div class="hero-info">
+    <div class="hero-detail">
+      <h3>Group</h3>
+      <h2>{{ data.memberOfLabel }}</h2>
+    </div>
+    <div class="hero-detail">
+      <h3>Country</h3>
+      <h2>{{ data.citizenshipLabel }}</h2>
+    </div>
+    <div class="hero-detail">
+      <h3>Creator</h3>
+      <h2>{{ data.creatorLabel }}</h2>
+    </div>
+    <div class="hero-detail">
+      <h3>Gender</h3>
+      <h2>{{ data.genderLabel }}</h2>
+    </div>
+    <div class="hero-detail">
+      <h3>Ocuppation</h3>
+      <h2>{{ data.occupationLabel }}</h2>
+    </div>
+    <div class="hero-detail">
+      <h3>Skills</h3>
+      <h2>{{ data.skillsLabel }}</h2>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="center">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

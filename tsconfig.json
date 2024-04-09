@@ -18,11 +18,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": ["ES2022", "dom"],
-    "baseUrl": "./",
-    "paths": {
-      "@/*": ["src/app/*"]
-    }
+    "lib": ["ES2022", "dom"],  
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

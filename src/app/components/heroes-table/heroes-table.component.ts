@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
 import { MatInputModule } from '@angular/material/input'
 import { HeroesChipFilterComponent } from '../heroes-chip-filter/heroes-chip-filter.component'
+import { MatDialog } from '@angular/material/dialog'
+import { ModalHeroInfoComponent } from '../modal-hero-info/modal-hero-info.component'
 
 @Component({
   selector: 'heroes-table',
@@ -39,11 +41,19 @@ export class HeroesTableComponent implements AfterViewInit {
     'creatorLabel',
   ]
   dataSource = new MatTableDataSource<Hero>([])
+  constructor(public dialog: MatDialog) {}
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator
     this.dataSource.sort = this.sort
     this.dataSource.filterPredicate = this.filterHeroesByNames
+  }
+
+
+  openHeroInformation(row: Hero): void {
+    this.dialog.open(ModalHeroInfoComponent, {
+      data: row,   
+    })
   }
 
   filterHeroes(heroes: string[]) {
