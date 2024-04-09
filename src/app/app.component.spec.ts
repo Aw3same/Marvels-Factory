@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing'
 import { AppComponent } from './app.component'
+import { NoopAnimationsModule } from '@angular/platform-browser/animations'
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, NoopAnimationsModule],
     }).compileComponents()
   })
 
@@ -25,7 +26,7 @@ describe('AppComponent', () => {
     fixture.detectChanges()
     const compiled = fixture.nativeElement as HTMLElement
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'The Marvels Factory'
+      `The Marvel's Factory`
     )
   })
 })

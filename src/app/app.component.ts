@@ -20,8 +20,6 @@ export class AppComponent implements OnInit {
 
   heroes: Hero[] = []
 
-
-
   ngOnInit(): void {
     this.heroesService.getHeroes().subscribe(heroes => {
       this.heroes = heroes
