@@ -15,3 +15,16 @@ table {
 .mat-mdc-row:hover .mat-mdc-cell {
   border-color: currentColor;
 }
+
+
+.table-header {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 10px;
+  width: 100%;
+  gap: 10px;
+}
+
+.input-container {
+  flex: 85%;
+}

@@ -1,4 +1,11 @@
-<heroes-chip-filter (heroesSelected)="filterHeroes($event)" />
+<div class="table-header">
+    <heroes-chip-filter (heroesSelected)="filterHeroes($event)" class="input-container"/>
+
+  <button mat-fab extended color="primary" (click)="openCreateHeroDialog()">
+    <mat-icon>add</mat-icon>
+    Create Hero
+  </button>
+</div>
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="dataSource" matSort>
     <ng-container matColumnDef="nameLabel">

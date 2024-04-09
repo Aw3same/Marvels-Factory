@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input'
 import { HeroesChipFilterComponent } from '../heroes-chip-filter/heroes-chip-filter.component'
 import { MatDialog } from '@angular/material/dialog'
 import { ModalHeroInfoComponent } from '../modal-hero-info/modal-hero-info.component'
+import { MatButtonModule } from '@angular/material/button'
+import { MatIconModule } from '@angular/material/icon'
 
 @Component({
   selector: 'heroes-table',
@@ -19,6 +21,8 @@ import { ModalHeroInfoComponent } from '../modal-hero-info/modal-hero-info.compo
     MatSortModule,
     MatPaginatorModule,
     HeroesChipFilterComponent,
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './heroes-table.component.html',
   styleUrl: './heroes-table.component.css',
@@ -54,6 +58,8 @@ export class HeroesTableComponent implements AfterViewInit {
     this.dialog.open(ModalHeroInfoComponent, {
       data: row,   
     })
+  }
+  openCreateHeroDialog(): void {
   }
 
   filterHeroes(heroes: string[]) {
