@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { Hero } from '../../types/hero'
 
 @Component({
-  selector: 'app-mmodal-hero-info',
+  selector: 'modal-hero-info',
   standalone: true,
   imports: [MatDialogModule, MatButtonModule],
   templateUrl: './modal-hero-info.component.html',
