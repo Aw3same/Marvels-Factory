@@ -36,7 +36,7 @@ export class HeroesService {
     const storedHeroes = JSON.parse(
       localStorage.getItem('storedHeroes')!
     ) as Hero[]
-    storedHeroes.push(hero)
+    storedHeroes.unshift(hero)
     localStorage.setItem('storedHeroes', JSON.stringify(storedHeroes))
     return new Observable(observer => {
       observer.next(hero)
@@ -64,5 +64,16 @@ export class HeroesService {
         return of(false)
       })
     )
+  }
+
+  updateHero(prevHero: Hero, updatedHero: Hero): Observable<Hero> {
+    let heroes = JSON.parse(localStorage.getItem('storedHeroes')!) as Hero[]
+    const index = heroes.findIndex((h: Hero) => h.nameLabel === prevHero.nameLabel)
+    heroes[index] = updatedHero
+    localStorage.setItem('storedHeroes', JSON.stringify(heroes))
+    return new Observable(observer => {
+      observer.next(updatedHero)
+      observer.complete()
+    })
   }
 }
