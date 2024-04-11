@@ -1,0 +1,81 @@
+<form [formGroup]="heroForm" (ngSubmit)="onSubmit()">
+  <div class="hero-form">
+    <mat-form-field>
+      <mat-label for="name">Name</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="name"
+        placeholder="Type your hero name" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Choose an option</mat-label>
+      <mat-select formControlName="gender">
+        <mat-option value="male">Male</mat-option>
+        <mat-option value="female">Female</mat-option>
+        <mat-option value="unknown">Unknown</mat-option>
+        <mat-option value="other">Other</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label for="name">Citizenship</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="citizenship"
+        placeholder="American, russian.." />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label for="name">Skills</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="skills"
+        placeholder="American, russian.." />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label for="occupation">Occupation</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="occupation"
+        placeholder="Journalist, scientist.." />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label for="occupation">Member of</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="memberOf"
+        placeholder="The avengers, S.H.I.E.L.D. ..." />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label for="creator">Creator</mat-label>
+      <input
+        matInput
+        type="text"
+        autocomplete="off"
+        formControlName="creator"
+        placeholder="Stan Lee" />
+    </mat-form-field>
+  </div>
+  <button
+    mat-fab
+    extended
+    type="submit"
+    [disabled]="!heroForm.valid"
+    color="primary">
+    {{ buttonLabel }}
+  </button>
+</form>

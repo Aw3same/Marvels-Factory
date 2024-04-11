@@ -1,0 +1,11 @@
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px;
+}
+.hero-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+}
