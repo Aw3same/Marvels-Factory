@@ -256,10 +256,6 @@ describe('HeroesService', () => {
     })
 
     it('should return false if there is an error deleting a hero', fakeAsync(() => {
-
-      const expectedError = new ErrorEvent('Hero not found', {
-        message: 'Hero not found',
-      })
       // Arrange
       const heroes: Hero[] = [
         {
@@ -289,9 +285,73 @@ describe('HeroesService', () => {
       service.deleteHeroByName('Hero that does not exist').subscribe(result => {
         reqResult = result
       })
-      
+
       tick()
       expect(reqResult).toBe(false)
+    }))
+  })
+
+  describe('#updateHero', () => {
+    it('#updateHero should update a hero in localStorage and return the updated hero', fakeAsync(() => {
+      // Arrange
+      const initialHeroes: Hero[] = [
+        {
+          nameLabel: 'Iron Man',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Tech Genius, Engineer',
+          occupationLabel: 'Billionaire Industrialist',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+        },
+        {
+          nameLabel: 'Captain America',
+          genderLabel: 'Male',
+          citizenshipLabel: 'American',
+          skillsLabel: 'Peak Human Strength, Agility, Durability',
+          occupationLabel: 'Soldier',
+          memberOfLabel: 'Avengers',
+          creatorLabel: 'Joe Simon, Jack Kirby',
+        },
+      ]
+
+      localStorage.setItem('storedHeroes', JSON.stringify(initialHeroes))
+
+      const prevHero: Hero = {
+        nameLabel: 'Iron Man',
+        genderLabel: 'Male',
+        citizenshipLabel: 'American',
+        skillsLabel: 'Tech Genius, Engineer',
+        occupationLabel: 'Billionaire Industrialist',
+        memberOfLabel: 'Avengers',
+        creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+      }
+
+      const updatedHero: Hero = {
+        nameLabel: 'Iron Man',
+        genderLabel: 'Male',
+        citizenshipLabel: 'American',
+        skillsLabel: 'Genius, Engineer, Philanthropist',
+        occupationLabel: 'Superhero',
+        memberOfLabel: 'Avengers',
+        creatorLabel: 'Stan Lee, Jack Kirby, Larry Lieber, Don Heck',
+      }
+
+      // Act
+      service.updateHero(prevHero, updatedHero).subscribe(hero => {
+        expect(hero).toEqual(updatedHero)
+      })
+      tick()
+
+      const updatedHeroes = JSON.parse(
+        localStorage.getItem('storedHeroes')!
+      ) as Hero[]
+      const updatedHeroIndex = updatedHeroes.findIndex(
+        h => h.nameLabel === updatedHero.nameLabel
+      )
+
+      // Assert
+      expect(updatedHeroes[updatedHeroIndex]).toEqual(updatedHero)
     }))
   })
 })
