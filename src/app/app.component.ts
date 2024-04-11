@@ -25,26 +25,4 @@ export class AppComponent implements OnInit {
       this.heroes = heroes
     })
   }
-
-  addHero(hero: Hero): void {
-    this.heroesService.addHero(hero).subscribe(newHero => {
-      this.heroes.push(newHero)
-    })
-  }
-
-  deleteHero(hero: Hero): void {
-    this.heroesService.deleteHeroByName(hero.nameLabel).subscribe(result => {
-      if (!result) {
-        console.error('Error deleting hero')
-        return
-      }
-      this.heroes = this.heroes.filter(h => h.nameLabel !== hero.nameLabel)
-    })
-  }
-
-  getHeroByName(name: string): void {
-    this.heroesService.getHeroByName(name).subscribe(hero => {
-      console.log(hero)
-    })
-  }  
 }
