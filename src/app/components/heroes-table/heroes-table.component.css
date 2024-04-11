@@ -3,7 +3,7 @@
 }
 
 table {
-  width: 1200px;
+  width: 1400px;
 }
 
 .mat-mdc-row .mat-mdc-cell {
@@ -16,7 +16,6 @@ table {
   border-color: currentColor;
 }
 
-
 .table-header {
   display: flex;
   align-items: baseline;
@@ -27,4 +26,8 @@ table {
 
 .input-container {
   flex: 85%;
+}
+
+th {
+  font-weight: 600  ;
 }
