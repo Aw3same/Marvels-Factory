@@ -5,6 +5,8 @@
 
 import type { Config } from 'jest'
 
+const esModules = ['d3', 'd3-array', 'jest-preset-angular'].join('|')
+
 const config: Config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
@@ -90,7 +92,10 @@ const config: Config = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  // moduleNameMapper: {
+  moduleNameMapper: {
+    '^d3$': '<rootDir>/node_modules/d3/dist/d3.min.js',
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -183,7 +188,7 @@ const config: Config = {
   //   "\\\\node_modules\\\\",
   //   "\\.pnp\\.[^\\\\]+$"
   // ],
-
+  // transformIgnorePatterns: [`/node_modules/(?!${esModules})`, "\\\\node_modules\\\\",],
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
 
