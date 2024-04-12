@@ -39,7 +39,7 @@ import { PieComponent } from '../charts/pie/pie.component'
     MatIconModule,
     HttpClientModule,
     BarComponent,
-    PieComponent
+    PieComponent,
   ],
   providers: [HeroesService],
   templateUrl: './heroes-table.component.html',
@@ -49,10 +49,8 @@ export class HeroesTableComponent implements AfterViewInit {
   @Input() set heroes(heroes: Hero[]) {
     this.dataSource.data = heroes
 
-    this.generateChartData2(heroes)
+    this.generateChartData(heroes)
   }
-
-  
 
   groupedNameChartData: ChartData[] = []
   groupedGenderChartData: ChartData[] = []
@@ -114,7 +112,7 @@ export class HeroesTableComponent implements AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.dataSource.data = [result, ...this.dataSource.data]
+        this.dataSource.data = [result, ...this.dataSource.data]        
       }
     })
   }
@@ -185,7 +183,7 @@ export class HeroesTableComponent implements AfterViewInit {
     return Object.keys(groupedData).length
   }
 
-  private generateChartData2(heroes: Hero[]) {
+  private generateChartData(heroes: Hero[]) {
     this.numDistinctNames = this.countGroupedData(
       heroes,
       'nameLabel',
