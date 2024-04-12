@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, Input, ViewChild, inject } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  ViewChild,
+  inject,
+} from '@angular/core'
 import { MatSort, MatSortModule } from '@angular/material/sort'
 import { MatTableDataSource, MatTableModule } from '@angular/material/table'
 import { Hero } from '../../types/hero'
@@ -14,6 +20,10 @@ import { ModalNewHeroComponent } from '../modal-new-hero/modal-new-hero.componen
 import { HeroesService } from '../../services/heroes.service'
 import { HttpClientModule } from '@angular/common/http'
 import { ModalUpdateHeroComponent } from '../modal-update-hero/modal-update-hero.component'
+import { BarComponent } from '../charts/bar/bar.component'
+
+import { ChartData } from '../../types/charts'
+import { PieComponent } from '../charts/pie/pie.component'
 
 @Component({
   selector: 'heroes-table',
@@ -27,7 +37,9 @@ import { ModalUpdateHeroComponent } from '../modal-update-hero/modal-update-hero
     HeroesChipFilterComponent,
     MatButtonModule,
     MatIconModule,
-    HttpClientModule
+    HttpClientModule,
+    BarComponent,
+    PieComponent
   ],
   providers: [HeroesService],
   templateUrl: './heroes-table.component.html',
@@ -36,12 +48,31 @@ import { ModalUpdateHeroComponent } from '../modal-update-hero/modal-update-hero
 export class HeroesTableComponent implements AfterViewInit {
   @Input() set heroes(heroes: Hero[]) {
     this.dataSource.data = heroes
+
+    this.generateChartData2(heroes)
   }
+
+  
+
+  groupedNameChartData: ChartData[] = []
+  groupedGenderChartData: ChartData[] = []
+  groupedCitizenshipChartData: ChartData[] = []
+  groupedSkillsChartData: ChartData[] = []
+  groupedOccupationChartData: ChartData[] = []
+  groupedMemberChartData: ChartData[] = []
+  groupedCreatorChartData: ChartData[] = []
+  numDistinctNames = 0
+  numDistinctGenders = 0
+  numDistinctCitizenships = 0
+  numDistinctSkills = 0
+  numDistinctOccupations = 0
+  numDistinctMembers = 0
+  numDistinctCreators = 0
 
   @ViewChild(MatSort) sort!: MatSort
   @ViewChild(MatPaginator) paginator!: MatPaginator
 
-  displayedColumns: string[] = [
+  dataColumns: string[] = [
     'nameLabel',
     'genderLabel',
     'citizenshipLabel',
@@ -49,8 +80,19 @@ export class HeroesTableComponent implements AfterViewInit {
     'occupationLabel',
     'memberOfLabel',
     'creatorLabel',
-    'actions'
+    'actions',
   ]
+
+  chartColumns: string[] = [
+    'nameLabel-chart',
+    'genderLabel-chart',
+    'citizenshipLabel-chart',
+    'skillsLabel-chart',
+    'occupationLabel-chart',
+    'memberOfLabel-chart',
+    'creatorLabel-chart',
+  ]
+
   dataSource = new MatTableDataSource<Hero>([])
   heroesService = inject(HeroesService)
   constructor(public dialog: MatDialog) {}
@@ -63,7 +105,7 @@ export class HeroesTableComponent implements AfterViewInit {
 
   openHeroInformation(row: Hero): void {
     this.dialog.open(ModalHeroInfoComponent, {
-      data: row,   
+      data: row,
     })
   }
 
@@ -94,7 +136,6 @@ export class HeroesTableComponent implements AfterViewInit {
 
     dialogRef.afterClosed().subscribe(([updatedHero, prevHero]) => {
       if (updatedHero) {
-
         const prevData = this.dataSource.data
 
         const index = prevData.findIndex(
@@ -105,11 +146,10 @@ export class HeroesTableComponent implements AfterViewInit {
         this.dataSource.data = prevData
       }
     })
-
   }
 
   filterHeroes(heroes: string[]) {
-    this.dataSource.filter = heroes.join(' ')    
+    this.dataSource.filter = heroes.join(' ')
   }
 
   private filterHeroesByNames(row: Hero, filter: string): boolean {
@@ -117,5 +157,69 @@ export class HeroesTableComponent implements AfterViewInit {
 
     const searchTerms = filter.toLowerCase().split(' ')
     return searchTerms.some(term => columnName.includes(term))
+  }
+
+  private countGroupedData(
+    heroes: Hero[],
+    labelKey: keyof Hero,
+    chartDataArray: ChartData[]
+  ): number {
+    const groupedData: { [key: string]: number } = {}
+    for (const hero of heroes) {
+      const label = hero[labelKey]
+      if (!groupedData[label]) {
+        groupedData[label] = 1
+      } else {
+        groupedData[label]++
+      }
+    }
+
+    for (const key of Object.keys(groupedData)) {
+      const barChartData: ChartData = {
+        key: key,
+        value: groupedData[key],
+      }
+      chartDataArray.push(barChartData)
+    }
+
+    return Object.keys(groupedData).length
+  }
+
+  private generateChartData2(heroes: Hero[]) {
+    this.numDistinctNames = this.countGroupedData(
+      heroes,
+      'nameLabel',
+      this.groupedNameChartData
+    )
+    this.numDistinctGenders = this.countGroupedData(
+      heroes,
+      'genderLabel',
+      this.groupedGenderChartData
+    )
+    this.numDistinctCitizenships = this.countGroupedData(
+      heroes,
+      'citizenshipLabel',
+      this.groupedCitizenshipChartData
+    )
+    this.numDistinctSkills = this.countGroupedData(
+      heroes,
+      'skillsLabel',
+      this.groupedSkillsChartData
+    )
+    this.numDistinctOccupations = this.countGroupedData(
+      heroes,
+      'occupationLabel',
+      this.groupedOccupationChartData
+    )
+    this.numDistinctMembers = this.countGroupedData(
+      heroes,
+      'memberOfLabel',
+      this.groupedMemberChartData
+    )
+    this.numDistinctCreators = this.countGroupedData(
+      heroes,
+      'creatorLabel',
+      this.groupedCreatorChartData
+    )
   }
 }

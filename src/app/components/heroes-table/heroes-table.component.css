@@ -2,8 +2,22 @@
   display: block;
 }
 
+.main-container {
+  position: relative;
+  max-width: 1500px;
+}
+
+.table-container {
+  position: relative;
+  height: auto;
+  overflow: auto;
+}
+
 table {
-  width: 1400px;
+  width: 100%;
+}
+td {
+  text-align: center;
 }
 
 .mat-mdc-row .mat-mdc-cell {
@@ -29,5 +43,11 @@ table {
 }
 
 th {
-  font-weight: 600  ;
+  font-weight: 600;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
 }
